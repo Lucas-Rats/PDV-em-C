@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <locale.h>
+
+typedef struct {
+    char data[11];
+    char codigo[10];
+    char nome[30];
+    char marca[30];
+    int quantidade;
+    float preco_unitario;
+    float preco_total;
+} Venda;
+
+void calcularPreco(Venda *v){
+    v->preco_total = v->preco_unitario * v->quantidade;
+    if(v->quantidade >= 3){
+        v->preco_total *= 0.9; //Aplicando 10% de desconto
+    }
+}
+void cadastrarVendas();
+void gerarRelatorios();
+
+int main() {
+    setlocale(LC_ALL, "Portuguese");
+    int opcao;
+
+    do {
+        printf("Seja bem-vindo a Loja!\n");
+        printf("Escolha a opcao que deseja:\n");
+        printf("1 - Cadastrar Vendas\n");
+        printf("2 - Gerar Relatorios\n");
+        printf("3 - Sair\n");
+        printf("Digite a opcao desejada: ");
+        scanf("%d", &opcao);
+
+        switch(opcao) {
+            case 1:
+                cadastrarVendas();
+                break;
+            case 2:
+                gerarRelatorios();
+                break;
+            case 3:
+                printf("Encerrando o programa...\n");
+                break;
+            default:
+                printf("Opcao invalida. Tente novamente.\n");
+        }
+    } while(opcao != 3);
+
+    return 0;
+}
+
+void cadastrarVendas() {
+        Venda v;
+        int voltar;
+        do {
+            printf("\n--- Cadastro de Vendas ---\n");
+            printf("Data da venda (dd/mm/aaaa)\n");
+            scanf(" %[^\n]", v.data);
+
+            printf("Código do item: ");
+            scanf(" %[^\n]", v.codigo);
+
+            printf("Nome do item: ");
+            scanf(" %[^\n]", v.nome);
+
+            printf("Marca do item: ");
+            scanf(" %[^\n]", v.marca);
+
+            printf("Quantidade: ");
+            scanf("%d", &v.quantidade);
+
+            printf("Preço unitário: ");
+            scanf("%f", &v.preco_unitario);
+
+            calcularPreco(&v);
+
+            printf("Venda cadastrada!\n");
+            printf("Total da venda: R$ %.2f\n", v.preco_total);
+
+            printf("Aperte 2 para voltar ao menu ");
+            scanf("%d", &voltar);
+        } while(voltar != 2);
+    }
+
+    void gerarRelatorios() {
+        int voltar;
+        do {
+            printf("\n--- Relatorios ---\n");
+            printf("E so um teste, relaxa\n");
+            printf("Aperte 2 para voltar ao menu: ");
+            scanf("%d", &voltar);
+        } while(voltar != 2);
+}
