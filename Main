@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <locale.h>
+#include <stdlib.h>
 
 typedef struct {
     char data[11];
@@ -22,6 +23,8 @@ void gerarRelatorios();
 
 int main() {
     setlocale(LC_ALL, "Portuguese");
+    system("chcp 65001");
+    printf("\n");
     int opcao;
 
     do {
@@ -54,12 +57,15 @@ int main() {
 void cadastrarVendas() {
         Venda v;
         int voltar;
+        FILE *arquivo;
+        setlocale(LC_ALL, "Portuguese");
         do {
             printf("\n--- Cadastro de Vendas ---\n");
             printf("Data da venda (dd/mm/aaaa)\n");
             scanf(" %[^\n]", v.data);
 
             printf("Código do item: ");
+            printf("Codigo do item: ");
             scanf(" %[^\n]", v.codigo);
 
             printf("Nome do item: ");
@@ -72,13 +78,27 @@ void cadastrarVendas() {
             scanf("%d", &v.quantidade);
 
             printf("Preço unitário: ");
+            printf("Preco unitario: ");
             scanf("%f", &v.preco_unitario);
 
             calcularPreco(&v);
 
+            //gravar no arquivo
+            arquivo = fopen("loja_roupa.txt","a");
+            if(arquivo == NULL){
+                printf("Erro ao abrir o arquivo");
+                return;
+            }
+            fprintf(arquivo, "\nData da venda: %s\nCódigo do item: %s\nNome do item: %s\nMarca do item: %s\nQuantidade: %d\nPreço unitário: %.2f\nPreço total: %.2f\n\n",
+                v.data,v.codigo,v.nome,v.marca,v.quantidade,v.preco_unitario,v.preco_total);
+
+            fclose(arquivo);
+
+            printf("\n");
             printf("Venda cadastrada!\n");
             printf("Total da venda: R$ %.2f\n", v.preco_total);
 
+            printf("\n");
             printf("Aperte 2 para voltar ao menu ");
             scanf("%d", &voltar);
         } while(voltar != 2);
@@ -92,4 +112,6 @@ void cadastrarVendas() {
             printf("Aperte 2 para voltar ao menu: ");
             scanf("%d", &voltar);
         } while(voltar != 2);
+}
+        } while(voltar!=2);
 }
