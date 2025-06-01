@@ -1,0 +1,225 @@
+#include <stdio.h>
+#include <locale.h>
+#include <string.h>
+
+typedef struct {
+    char data[11];
+    char codigo[10];
+    char nome[30];
+    char marca[30];
+    int quantidade;
+    float preco_unitario;
+    float preco_total;
+} Venda;
+
+void calcularPreco(Venda *v){
+    v->preco_total = v->preco_unitario * v->quantidade;
+    if(v->quantidade >= 3){
+        v->preco_total *= 0.9; //Aplicando 10% de desconto
+    }
+}
+void cadastrarVendas();
+void gerarRelatorios();
+
+int main() {
+    setlocale(LC_ALL, "Portuguese");
+    system("chcp 65001");
+    printf("\n");
+    int opcao;
+
+    do {
+        printf("Seja bem-vindo a Loja!\n");
+        printf("Escolha a opcao que deseja:\n");
+        printf("1 - Cadastrar Vendas\n");
+        printf("2 - Gerar Relatorios\n");
+        printf("3 - Sair\n");
+        printf("Digite a opcao desejada: ");
+        scanf("%d", &opcao);
+
+        switch(opcao) {
+            case 1:
+                cadastrarVendas();
+                break;
+            case 2:
+                gerarRelatorios();
+                break;
+            case 3:
+                printf("Encerrando o programa...\n");
+                break;
+            default:
+                printf("Opcao invalida. Tente novamente.\n");
+        }
+    } while(opcao != 3);
+
+    return 0;
+}
+
+void cadastrarVendas() {
+        Venda v;
+        int voltar;
+        FILE *arquivo;
+        setlocale(LC_ALL, "Portuguese");
+        do {
+            printf("\n--- Cadastro de Vendas ---\n");
+            printf("Data da venda (dd/mm/aaaa)\n");
+            scanf(" %[^\n]", v.data);
+
+            printf("Codigo do item: ");
+            scanf(" %[^\n]", v.codigo);
+
+            printf("Nome do item: ");
+            scanf(" %[^\n]", v.nome);
+
+            printf("Marca do item: ");
+            scanf(" %[^\n]", v.marca);
+
+            printf("Quantidade: ");
+            scanf("%d", &v.quantidade);
+
+            printf("Preco unitario: ");
+            scanf("%f", &v.preco_unitario);
+
+            calcularPreco(&v);
+
+            //gravar no arquivo
+            arquivo = fopen("loja_roupa.txt","a");
+            if(arquivo == NULL){
+                printf("Erro ao abrir o arquivo");
+                return;
+            }
+            fprintf(arquivo, "\nData da venda: %s\nCódigo do item: %s\nNome do item: %s\nMarca do item: %s\nQuantidade: %d\nPreço unitário: %.2f\nPreço total: %.2f\n\n",
+                v.data,v.codigo,v.nome,v.marca,v.quantidade,v.preco_unitario,v.preco_total);
+
+            fclose(arquivo);
+
+            printf("\n");
+            printf("Venda cadastrada!\n");
+            printf("Total da venda: R$ %.2f\n", v.preco_total);
+
+            printf("\n");
+            printf("Aperte 2 para voltar ao menu ");
+            scanf("%d", &voltar);
+        } while(voltar != 2);
+    }
+
+    void gerarRelatorios() {
+    char dataBusca[11];
+    FILE *arquivo;
+    Venda vendas[100];
+    int qtdVendas = 0;
+
+    printf("\nDigite a data da venda (dd/mm/aaaa): ");
+    scanf(" %[^\n]", dataBusca);
+
+    arquivo = fopen("loja_roupa.txt", "r");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    while (!feof(arquivo)) {
+        Venda v;
+        char linha[200];
+
+        fgets(linha, sizeof(linha), arquivo);
+        if (sscanf(linha, "Data da venda: %10[^\n]", v.data) == 1 && strcmp(v.data, dataBusca) == 0) {
+            fgets(linha, sizeof(linha), arquivo);
+            sscanf(linha, "Codigo do item: %9[^\n]", v.codigo);
+
+            fgets(linha, sizeof(linha), arquivo);
+            sscanf(linha, "Nome do item: %29[^\n]", v.nome);
+
+            fgets(linha, sizeof(linha), arquivo);
+            sscanf(linha, "Marca do item: %29[^\n]", v.marca);
+
+            fgets(linha, sizeof(linha), arquivo);
+            sscanf(linha, "Quantidade: %d", &v.quantidade);
+
+            fgets(linha, sizeof(linha), arquivo);
+            sscanf(linha, "Preco unitario: %f", &v.preco_unitario);
+
+            fgets(linha, sizeof(linha), arquivo);
+            sscanf(linha, "Preco total: %f", &v.preco_total);
+
+            vendas[qtdVendas++] = v;
+        }
+    }
+
+    fclose(arquivo);
+
+    if (qtdVendas == 0) {
+        printf("Nenhuma venda encontrada para esta data.\n");
+        return;
+    }
+
+    int totalItens = 0;
+    float faturamento = 0;
+    int i;
+    int j;
+    for (i = 0; i < qtdVendas; i++) {
+        totalItens += vendas[i].quantidade;
+        faturamento += vendas[i].preco_total;
+    }
+
+    typedef struct {
+        char nome[30];
+        int total;
+    } Contador;
+
+    Contador cont[100];
+    int contQtd = 0;
+
+    for (i = 0; i < qtdVendas; i++) {
+        int achou = 0;
+        for (j = 0; j < contQtd; j++) {
+            if (strcmp(cont[j].nome, vendas[i].nome) == 0) {
+                cont[j].total += vendas[i].quantidade;
+                achou = 1;
+                break;
+            }
+        }
+        if (!achou) {
+            strcpy(cont[contQtd].nome, vendas[i].nome);
+            cont[contQtd].total = vendas[i].quantidade;
+            contQtd++;
+        }
+    }
+
+    int mais = 0, menos = 0;
+    for (i = 1; i < contQtd; i++) {
+        if (cont[i].total > cont[mais].total) mais = i;
+        if (cont[i].total < cont[menos].total) menos = i;
+    }
+
+    for (i = 0; i < qtdVendas - 1; i++) {
+        for (j = i + 1; j < qtdVendas; j++) {
+            if (vendas[i].preco_total < vendas[j].preco_total) {
+                Venda temp = vendas[i];
+                vendas[i] = vendas[j];
+                vendas[j] = temp;
+            }
+        }
+    }
+
+    printf("\nRelatorio do dia %s:\n", dataBusca);
+    printf("Total de itens vendidos: %d\n", totalItens);
+    printf("Faturamento bruto: R$ %.2f\n", faturamento);
+    printf("Numero de clientes: %d\n", qtdVendas);
+    printf("Item mais vendido: %s (%d unidades)\n", cont[mais].nome, cont[mais].total);
+    printf("Item menos vendido: %s (%d unidades)\n", cont[menos].nome, cont[menos].total);
+
+    printf("\nVendas em ordem decrescente de valor:\n");
+    for (i = 0; i < qtdVendas; i++) {
+        printf("Venda %d - %s (%s), Marca: %s, Quantidade: %d, Total: R$ %.2f\n",
+            i + 1,
+            vendas[i].nome,
+            vendas[i].codigo,
+            vendas[i].marca,
+            vendas[i].quantidade,
+            vendas[i].preco_total);
+    }
+
+    printf("\nAperte 2 para voltar ao menu: ");
+    int voltar;
+    scanf("%d", &voltar);
+}
