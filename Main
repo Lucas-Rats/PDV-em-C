@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <locale.h>
-#include <string.h>
+#include <stdlib.h>
+
+
+
 
 typedef struct {
     char data[11];
@@ -64,6 +67,10 @@ void cadastrarVendas() {
             printf("Data da venda (dd/mm/aaaa)\n");
             scanf(" %[^\n]", v.data);
 
+
+            printf("Código do item: ");
+
+
             printf("Codigo do item: ");
             scanf(" %[^\n]", v.codigo);
 
@@ -75,6 +82,10 @@ void cadastrarVendas() {
 
             printf("Quantidade: ");
             scanf("%d", &v.quantidade);
+
+
+            printf("Preço unitário: ");
+
 
             printf("Preco unitario: ");
             scanf("%f", &v.preco_unitario);
@@ -222,4 +233,6 @@ void cadastrarVendas() {
     printf("\nAperte 2 para voltar ao menu: ");
     int voltar;
     scanf("%d", &voltar);
+}
+        } while(voltar!=2);
 }
