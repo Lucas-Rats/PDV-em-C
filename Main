@@ -2,6 +2,7 @@
 #include <locale.h>
 #include <stdlib.h>
 
+
 typedef struct {
     char data[11];
     char codigo[10];
